@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChainMeter Pro</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="sidebar">
+
+    <div class="sec">Imagen</div>
+    <div class="upload-zone" id="uploadZone">
+      <div class="ico"></div>
+      <p>Arrastra la imagen o<br><strong>haz click para subir</strong></p>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div class="sec">Flujo</div>
+    <div class="steps">
+      <div class="step" id="stepScale">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-label">Calibrar A → B</div>
+          <div class="step-desc">Marca una referencia conocida y escribe los mm reales.</div>
+        </div>
+      </div>
+      <div class="step" id="stepPattern">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-label">Definir patrón</div>
+          <div class="step-desc">Para cada eslabón sano mide C-D y, si quieres, añade E-F; el menor entra en la mediana.</div>
+        </div>
+      </div>
+      <div class="step" id="stepInspect">
+        <div class="step-num">3</div>
+        <div class="step-info">
+          <div class="step-label">Inspeccionar</div>
+          <div class="step-desc">En cada eslabón mide C-D y, si quieres, añade E-F; el menor es el valor crítico.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">Calibración</div>
+    <div class="config-card">
+      <div class="config-row">
+        <div class="config-copy">
+          <div class="meas-lbl">GRILLETE DE REFERENCIA A-B</div>
+          <div class="config-info">Marca A y B sobre el grillete, que es la referencia conocida, y escribe su medida real.</div>
+        </div>
+        <div class="config-field">
+          <input class="config-input" id="calibrationMmInput" type="number" min="0.1" step="0.1" value="22.0">
+          <span class="meas-lbl">mm</span>
+        </div>
+      </div>
+      <button class="btn" id="btnStartCalibration">1. Marcar A → B</button>
+      <div class="metric-grid">
+        <div class="metric">
+          <span>A-B en píxeles</span>
+          <strong id="abPxVal">— px</strong>
+        </div>
+        <div class="metric">
+          <span>Escala activa</span>
+          <strong id="scaleVal">— mm/px</strong>
+        </div>
+      </div>
+      <div class="hint">A-B solo sirve para convertir píxeles a mm. Si una parte de la cadena está mucho más lejos de la cámara, su tamaño aparente puede bajar aunque mida igual.</div>
+    </div>
+
+    <div class="sec">Patrón</div>
+    <div class="config-card">
+      <div class="config-row">
+        <div class="config-copy">
+          <div class="meas-lbl">MODO DE PATRÓN</div>
+          <div class="config-info">Si no conoces el diámetro original, usa mediana sana a partir de varios eslabones que parezcan los mejor conservados.</div>
+        </div>
+        <select class="config-input" id="patternModeSelect" style="width:132px">
+          <option value="references" selected>Mediana sana</option>
+          <option value="manual">Nominal</option>
+        </select>
+      </div>
+      <div id="manualPatternBox" class="config-row">
+        <div class="config-copy">
+          <div class="meas-lbl">DIÁMETRO NOMINAL</div>
+          <div class="config-info">Opcional. Úsalo solo si conoces el diámetro original esperado.</div>
+        </div>
+        <div class="config-field">
+          <input class="config-input" id="manualPatternInput" type="number" min="0.1" step="0.1" value="22.0">
+          <span class="meas-lbl">mm</span>
+        </div>
+      </div>
+      <div id="referencePatternBox" class="config-card" style="padding:0; border:none; background:none">
+        <div class="btn-group">
+          <button class="btn secondary" id="btnAddReference" disabled>Añadir sano C-D/E-F</button>
+          <button class="btn secondary" id="btnClearReferences" disabled>Vaciar sanos</button>
+        </div>
+        <div class="metric-grid">
+          <div class="metric">
+            <span>Referencias sanas</span>
+            <strong id="referenceCountVal">0</strong>
+          </div>
+          <div class="metric">
+            <span>Mediana</span>
+            <strong id="referenceMedianVal">— mm</strong>
+          </div>
+        </div>
+        <div class="hint">Cada referencia sana guarda como mínimo C-D. Si también añades E-F, la app usa el menor de ambos. El primer eslabón unido al grillete no se toma como sano automáticamente: puede estar peor o mejor que el segundo.</div>
+        <div class="list" id="referenceList"></div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric">
+          <span>Patrón activo</span>
+          <strong id="activePatternVal">— mm</strong>
+        </div>
+        <div class="metric">
+          <span>Fuente</span>
+          <strong id="patternSourceVal">—</strong>
+        </div>
+      </div>
+      <div class="pill-row" id="patternPills"></div>
+    </div>
+
+  </div>
+
+  <div class="workspace">
+    <div class="canvas-area" id="canvasArea">
+      <div class="calib-overlay" id="overlay"></div>
+      <div class="btn-group" id="optionalEfActions" style="display:none; width:100%; margin-bottom:10px;">
+        <button class="btn secondary" id="btnSaveCdOnly" type="button">Guardar solo C-D</button>
+        <button class="btn warn" id="btnContinueEf" type="button">Seguir con E-F</button>
+      </div>
+      <div class="placeholder" id="ph">
+        <div class="ph-ico"></div>
+        <div class="ph-h">Sube una imagen</div>
+        <p class="ph-p">Carga la foto y trabaja en este orden:<br>A-B para escala, patrón del eslabón y luego inspección</p>
+      </div>
+      <div class="canvas-wrap" id="wrap" style="display:none">
+        <canvas id="cv"></canvas>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="panel-block">
+        <div class="sec">Inspección</div>
+        <div class="config-card">
+          <div class="config-copy">
+            <div class="meas-lbl">MEDIR ESLABÓN</div>
+            <div class="config-info">Mide primero C-D en un lado del eslabón. Si quieres, después puedes añadir E-F en el otro lado. El menor es el valor crítico.</div>
+            <div class="config-info">Si el borde visible está engordado por biología marina, óxido adherido o incrustación, la medida puede salir más grande que el metal real.</div>
+          </div>
+          <button class="btn warn" id="btnMeasureInspection" disabled>Medir eslabón</button>
+          <div class="metric-grid">
+            <div class="metric">
+              <span>Inspecciones</span>
+              <strong id="inspectionCountVal">0</strong>
+            </div>
+            <div class="metric">
+              <span>Último crítico</span>
+              <strong id="latestMeasurementVal">— mm</strong>
+            </div>
+          </div>
+          <div id="diagnosticSummary" class="empty">Todavía no hay inspecciones.</div>
+          <div class="list" id="inspectionList"></div>
+          <button class="btn secondary" id="btnReset">Reiniciar mediciones</button>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="sec">Observaciones</div>
+        <div class="config-card">
+          <div class="pill-row" id="reliabilityPills"></div>
+          <div class="hint" id="globalNotes">En mediana sana se usa el menor entre C-D y E-F de cada eslabón sano. La perspectiva aquí es una heurística, no una reconstrucción 3D real.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
