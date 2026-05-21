@@ -1,0 +1,17 @@
+joy_teleop:
+  ros__parameters:
+    # Configuración para controlar el EONSEA mediante /cmd_vel
+    walk:
+      type: topic
+      interface_type: geometry_msgs/msg/Twist
+      topic_name: /cmd_vel
+      deadman_buttons: [6] # Botón LB en Xbox, siendo 4 con cable y 6 bluetooth
+      axis_mappings:
+        linear-x:
+          axis: 1       # Stick Izquierdo Arriba/Abajo
+          scale: 2.0    # Velocidad máxima m/s
+          offset: 0.0   
+        angular-z:
+          axis: 2       # Stick Derecho Izquierda/Derecha
+          scale: 1.5    # Velocidad de giro rad/s
+          offset: 0.0   

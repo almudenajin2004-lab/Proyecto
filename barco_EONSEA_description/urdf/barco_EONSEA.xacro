@@ -1,0 +1,188 @@
+<?xml version="1.0" ?>
+<robot name="barco_EONSEA" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find barco_EONSEA_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find barco_EONSEA_description)/urdf/barco_EONSEA.ros2control" />
+<xacro:include filename="$(find barco_EONSEA_description)/urdf/barco_EONSEA.gazebo" />
+<link name="base_link">
+  <inertial>
+    <origin xyz="-0.072238 0 -0.2" rpy="0 0 0"/>
+    <mass value="70"/>
+    <inertia ixx="161.198627" iyy="284.273189" izz="401.19424" ixy="0.00627" iyz="0.00516" ixz="-11.14034"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find barco_EONSEA_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find barco_EONSEA_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="motor_derecho_link_1">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.268425"/>
+    <inertia ixx="5.8e-05" iyy="9.5e-05" izz="9.5e-05" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://barco_EONSEA_description/meshes/motor_derecho_link__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://barco_EONSEA_description/meshes/motor_derecho_link__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="motor_izquierdo_link_1">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.268425"/>
+    <inertia ixx="5.8e-05" iyy="9.5e-05" izz="9.5e-05" ixy="0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://barco_EONSEA_description/meshes/motor_izquierdo_link__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://barco_EONSEA_description/meshes/motor_izquierdo_link__1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="camara_1">
+  <inertial>
+    <origin xyz="-0.002209917809117723 -6.593068347163483e-07 0.014957359661128433" rpy="0 0 0"/>
+    <mass value="1.4420017830500487"/>
+    <inertia ixx="0.00348" iyy="0.000268" izz="0.003547" ixy="0.0" iyz="-0.0" ixz="1e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.367757 -0.000618 -0.277687" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find barco_EONSEA_description)/meshes/camara_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.367757 -0.000618 -0.277687" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find barco_EONSEA_description)/meshes/camara_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="motor_derecho_joint" type="continuous">
+  <origin xyz="0.667 0.307 -0.25" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="motor_derecho_link_1"/>
+  <axis xyz="-1 0 0"/>
+</joint>
+
+<joint name="motor_izquierdo_joint" type="continuous">
+  <origin xyz="0.6670 -0.307 -0.25" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="motor_izquierdo_link_1"/>
+  <axis xyz="-1 0 0"/>
+</joint>
+
+<joint name="camara_joint" type="fixed">
+  <origin xyz="0.367757 0.000618 0.277687" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="camara_1"/>
+</joint>
+
+<gazebo reference="camara_1">
+  <sensor name="camara_frontal" type="camera">
+    <pose>0 0 0 0 0 3.14159</pose>
+    <update_rate>30.0</update_rate>
+    <always_on>true</always_on>
+    <visualize>true</visualize>
+    <topic>/camara_barco/image_raw</topic>
+    
+    <camera>
+      <horizontal_fov>1.047</horizontal_fov>
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>100.0</far>
+      </clip>
+    </camera>
+  </sensor>
+</gazebo>
+
+<gazebo>
+  <plugin filename="libgz-sim-joint-state-publisher-system.so" name="gz::sim::systems::JointStatePublisher">
+    <topic>/joint_states</topic>
+    <joint_name>motor_derecho_joint</joint_name>
+    <joint_name>motor_izquierdo_joint</joint_name>
+  </plugin>
+</gazebo>
+
+<!-- COLORES ESPECÍFICOS PARA GAZEBO -->
+
+<!-- Pintar el casco de negro -->
+<gazebo reference="base_link">
+  <visual>
+    <material>
+      <ambient>0.1 0.1 0.1 1.0</ambient>
+      <diffuse>0.1 0.1 0.1 1.0</diffuse>
+      <specular>0.8 0.8 0.8 1.0</specular>
+    </material>
+  </visual>
+</gazebo>
+
+<!-- Pintar el motor derecho de gris oscuro -->
+<gazebo reference="motor_derecho_link__1">
+  <visual>
+    <material>
+      <ambient>0.3 0.3 0.3 1.0</ambient>
+      <diffuse>0.3 0.3 0.3 1.0</diffuse>
+      <specular>0.8 0.8 0.8 1.0</specular>
+    </material>
+  </visual>
+</gazebo>
+
+<!-- Pintar el motor izquierdo de gris oscuro -->
+<gazebo reference="motor_izquierdo_link__1">
+  <visual>
+    <material>
+      <ambient>0.3 0.3 0.3 1.0</ambient>
+      <diffuse>0.3 0.3 0.3 1.0</diffuse>
+      <specular>0.8 0.8 0.8 1.0</specular>
+    </material>
+  </visual>
+</gazebo>
+
+<!-- Pintar la cámara de negro mate -->
+<gazebo reference="camara_1">
+  <visual>
+    <material>
+      <ambient>0.05 0.05 0.05 1.0</ambient>
+      <diffuse>0.05 0.05 0.05 1.0</diffuse>
+      <specular>0.1 0.1 0.1 1.0</specular>
+    </material>
+  </visual>
+</gazebo>
+
+</robot>

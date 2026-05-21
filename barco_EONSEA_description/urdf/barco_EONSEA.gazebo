@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<robot name="barco_EONSEA" xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<xacro:property name="body_color" value="Gazebo/Silver" />
+
+<gazebo reference="base_link">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <self_collide>true</self_collide>
+  <gravity>true</gravity>
+</gazebo>
+
+<gazebo>
+
+  <plugin filename="gz-sim-thruster-system" name="gz::sim::systems::Thruster">
+    <joint_name>motor_izquierdo_joint</joint_name>
+    <thrust_coefficient>0.004422</thrust_coefficient>
+    <fluid_density>1000</fluid_density>
+    <propeller_diameter>0.2</propeller_diameter>
+  </plugin>
+  <plugin filename="gz-sim-thruster-system" name="gz::sim::systems::Thruster">
+    <joint_name>motor_derecho_joint</joint_name>
+    <thrust_coefficient>0.004422</thrust_coefficient>
+    <fluid_density>1000</fluid_density>
+    <propeller_diameter>0.2</propeller_diameter>
+  </plugin>
+
+  <plugin filename="libSurface.so" name="vrx::Surface">
+    <link_name>base_link</link_name>
+    <hull_length>2.0</hull_length>
+    <hull_radius>0.3</hull_radius>
+    <fluid_level>-0.15</fluid_level>
+    <points>
+      <point> 0.9  0.48 -0.15</point> 
+      <point> 0.9 -0.48 -0.15</point> 
+      <point>-0.9  0.48 -0.15</point> 
+      <point>-0.9 -0.48 -0.15</point> 
+    </points>
+    <wavefield>
+      <topic>/vrx/wavefield/parameters</topic>
+    </wavefield>
+  </plugin>
+  
+  <plugin filename="libSimpleHydrodynamics.so" name="vrx::SimpleHydrodynamics">
+    <link_name>base_link</link_name>
+    <xDotU>0.0</xDotU> <yDotV>0.0</yDotV> <nDotR>0.0</nDotR>
+    <xU>12.0</xU> <xUU>18.0</xUU>
+    <yV>12.0</yV> <yVV>12.0</yVV>
+    <zW>50.0</zW> 
+    <kP>30.0</kP> <kPP>50.0</kPP>
+    <mQ>70.0</mQ> <mQQ>60.0</mQQ>
+    <nR>60.0</nR> <nRR>60.0</nRR>
+  </plugin>
+
+</gazebo>
+
+<gazebo reference="camara_1">
+  <material>${body_color}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <self_collide>true</self_collide>
+</gazebo>
+
+</robot>
